@@ -18,11 +18,15 @@ class InvoerRij:
         self.StartTijd.place(relx=x+.15, rely=y)
         
 class UrenRegistratie(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, SQL):
         tk.Frame.__init__(self, parent)
+        
+        self.InvoerRijen = []
         
         self.LabelStartTijd = tk.Label(self, text="Start tijd")
         self.LabelStartTijd.place(relx=.25, rely=.05)
         
         Rij1 = InvoerRij(self, .1, .1)
         Rij2 = InvoerRij(self, .1, .15)
+        
+        #for I in range(5):
