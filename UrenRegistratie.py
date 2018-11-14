@@ -6,6 +6,7 @@ Created on Mon Nov 12 10:00:46 2018
 """
 
 import tkinter as tk
+from tkinter import ttk
 
 class InvoerRij:
     def __init__(self, Frame, x, y):
@@ -18,6 +19,9 @@ class InvoerRij:
         self.StartTijd.place(relx=x+.15, rely=y)
         
 class UrenRegistratie(tk.Frame):
+    Layout = "place"
+    Title = "Uren registratie"
+    
     def __init__(self, parent, controller, SQL):
         tk.Frame.__init__(self, parent)
         

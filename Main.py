@@ -6,14 +6,20 @@ Created on Sun Nov 11 15:55:31 2018
 """
 
 import tkinter as tk
+from tkinter import ttk
 
 from UrenRegistratie import UrenRegistratie
+from GraphPage import GraphPage
+from StartPage import StartPage
+
 from SQLConnection import Connection
 
 class Main():
     def __init__(self, Frame): 
+        self.Frame = Frame
+        
         #Master frame on which everything will be placed
-        MainFrame = tk.Frame(Frame)
+        MainFrame = tk.Frame(self.Frame)
         MainFrame.pack(expand=True,fill="both")
                 
         #Frames for the pages and the navigation
@@ -23,21 +29,9 @@ class Main():
         container.place(relx=0.15, rely=0 , relwidth=.85, relheight=1)
         NavigationFrame.place(relx=0, rely=0 , relwidth=.15, relheight=1)
         
-        #Created navigation
-        button = tk.Button(MainFrame, text="Home",
-                            command=lambda: self.show_frame(StartPage))
-        button2 = tk.Button(MainFrame, text="Visit Page 1",
-                            command=lambda: self.show_frame(PageOne))
-        button3 = tk.Button(MainFrame, text="Uren registratie",
-                            command=lambda: self.show_frame(UrenRegistratie))
-        
-        button.place(in_=NavigationFrame, relx=0, rely=.05)
-        button2.place(in_=NavigationFrame, relx=0, rely=.1)
-        button3.place(in_=NavigationFrame, relx=0, rely=.15)
-        
-        ConnectionLabel = tk.Label(MainFrame, text="", bg="white")
-        ConnectionLabel.place(in_=NavigationFrame, relx=0, rely=0)
-        
+        ConnectionLabel = tk.Label(NavigationFrame, text="", bg="white")
+        ConnectionLabel.place(relx=0, rely=0, relwidth=1)
+                
         #Create SQl connection
         hostname = 'localhost'
         hostname = 'postgres'
@@ -52,17 +46,33 @@ class Main():
         else:
             ConnectionLabel.config(text="Not connected", fg="red")
         
-        #Create the pages of the GUI
+        #Create pages and navigation buttons  
+        self.Pages = (StartPage, GraphPage, UrenRegistratie)
+        self.NavigationButtons = {}        
         self.frames = {}
-
-        for F in (StartPage, PageOne, UrenRegistratie):
-
-            frame = F(container, self, self.SQL)
-
-            self.frames[F] = frame
             
-            frame.place(relwidth=1, relheight=1)
-                        
+        for I in range(len(self.Pages)):
+            #Navigation command for the button
+            action = lambda x = self.Pages[I]: self.show_frame(x)   
+            
+            #Location for the button
+            y = 30 + I * 28            
+            
+            #Create the page
+            frame = self.Pages[I](container, self, self.SQL)
+            
+            self.frames[self.Pages[I]] = frame
+            
+            if frame.Layout == "place":
+                frame.place(relwidth=1, relheight=1)
+            elif frame.Layout == "grid":
+                frame.pack(expand=True,fill="both")
+            
+            #Create button for the page            
+            self.NavigationButtons[I] = (tk.Button(NavigationFrame, text=self.Pages[I].Title))                      
+            self.NavigationButtons[I].config(command=action)
+            self.NavigationButtons[I].place(relx=0, y=y, relwidth=1)
+                                
         self.show_frame(StartPage)
 
     def show_frame(self, cont):
@@ -70,22 +80,9 @@ class Main():
         frame = self.frames[cont]
         frame.tkraise()
         
-class StartPage(tk.Frame):
-    def __init__(self, parent, controller, SQL):
-        tk.Frame.__init__(self, parent)
-        
-        label = tk.Label(self, text="Start Page")
-        label.place(relx=.1, rely=.1)
-
-class PageOne(tk.Frame):
-    def __init__(self, parent, controller, SQL):
-        tk.Frame.__init__(self, parent)
-        
-        label = tk.Label(self, text="Page One!!!")
-        label.place(relx=.1, rely=.1)
-
 root = tk.Tk()
-root.geometry("800x700+300+300")
+root.geometry("800x400+100+100")
+root.configure()
 app = Main(root)
 root.mainloop()   
 app.SQL.DisConnect() 
