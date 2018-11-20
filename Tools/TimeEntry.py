@@ -10,42 +10,48 @@ from tkinter import ttk
 
 class TimeEntry():
     def __init__(self, Frame, x, y):
+        #Created a new frame
         self._Frame = ttk.Frame(Frame)
         self._Frame.place(relx=x, rely=y)
         
         self._Time = "00:00"
         
+        #Variables for the hours and the minutes
         self._Hours = tk.StringVar() 
         self._Hours.set("00")  
         
         self._Minutes = tk.StringVar() 
         self._Minutes.set("00")
         
+        #Entry's for the hours and the minutes
         self._EntryHours = ttk.Entry(self._Frame, textvariable=self._Hours)
         self._EntryHours.config(justify="right", width=5)
         self._EntryHours.grid(row=0, column=0)
-        
-        self._Hours.trace('w', lambda *args, **kw: self._LimitEntry(Entry=self._EntryHours, 
-                                                            Value=self._Hours, Limit=24))
         
         self._EntryMinutes = ttk.Entry(self._Frame, textvariable=self._Minutes)
         self._EntryMinutes.config(justify="right", width=5)
         self._EntryMinutes.grid(row=0, column=2)
         
-        self._Minutes.trace('w', lambda *args, **kw: self._LimitEntry(Entry=self._EntryMinutes, 
+        #When the input changes check the imput
+        self._Hours.trace('w', lambda *args, **kw: self._EntryCheck(Entry=self._EntryHours, 
+                                                            Value=self._Hours, Limit=24))  
+                
+        self._Minutes.trace('w', lambda *args, **kw: self._EntryCheck(Entry=self._EntryMinutes, 
                                                             Value=self._Minutes, Limit=59))
         
+        #Adds a : between the entry for hours and minutes
         self._Divider = ttk.Label(self._Frame, text=":")
         self._Divider.config(justify="center", width=1)
         self._Divider.grid(row=0, column=1)
         
-    def _LimitEntry(self, *args, **kw):
+    def _EntryCheck(self, *args, **kw):
         Entry = kw.pop('Entry', None)
         Value = kw.pop('Value', None)
         Limit = kw.pop('Limit', 0)
         
         Input = Entry.get()       
         
+        #Ensure that the entry always contains two numbers
         if len(Input) < 1: 
             Value.set("00")
             return
@@ -53,14 +59,16 @@ class TimeEntry():
         if len(Input) < 2: 
             Value.set("0" + Input[0])
             return
-            
+                
         if len(Input) > 2: 
             Value.set(Input[:2]) 
         
+        #Reset the value when the input is not a number
         if not str.isdigit(Input): 
             Value.set("00")
             return
         
+        #Limit the input to a maximum value
         if int(Input[:2]) > Limit: 
             Value.set(str(Limit))
             return
