@@ -11,8 +11,8 @@ from tkinter import ttk
 class TimeEntry():
     def __init__(self, Frame, x, y):
         #Created a new frame
-        self._Frame = ttk.Frame(Frame)
-        self._Frame.place(relx=x, rely=y)
+        FrameTime = ttk.Frame(Frame)
+        FrameTime.place(relx=x, rely=y)
         
         self._Time = "00:00"
         
@@ -24,26 +24,26 @@ class TimeEntry():
         self._Minutes.set("00")
         
         #Entry's for the hours and the minutes
-        self._EntryHours = ttk.Entry(self._Frame, textvariable=self._Hours)
-        self._EntryHours.config(justify="right", width=5)
-        self._EntryHours.grid(row=0, column=0)
+        EntryHours = ttk.Entry(FrameTime, textvariable=self._Hours)
+        EntryHours.config(justify="right", width=5)
+        EntryHours.grid(row=0, column=0)
         
-        self._EntryMinutes = ttk.Entry(self._Frame, textvariable=self._Minutes)
-        self._EntryMinutes.config(justify="right", width=5)
-        self._EntryMinutes.grid(row=0, column=2)
+        EntryMinutes = ttk.Entry(FrameTime, textvariable=self._Minutes)
+        EntryMinutes.config(justify="right", width=5)
+        EntryMinutes.grid(row=0, column=2)
+        
+         #Adds a : between the entry for hours and minutes
+        Divider = ttk.Label(FrameTime, text=":")
+        Divider.config(justify="center", width=1)
+        Divider.grid(row=0, column=1)
         
         #When the input changes check the imput
-        self._Hours.trace('w', lambda *args, **kw: self._EntryCheck(Entry=self._EntryHours, 
+        self._Hours.trace('w', lambda *args, **kw: self._EntryCheck(Entry=EntryHours, 
                                                             Value=self._Hours, Limit=24))  
                 
-        self._Minutes.trace('w', lambda *args, **kw: self._EntryCheck(Entry=self._EntryMinutes, 
+        self._Minutes.trace('w', lambda *args, **kw: self._EntryCheck(Entry=EntryMinutes, 
                                                             Value=self._Minutes, Limit=59))
-        
-        #Adds a : between the entry for hours and minutes
-        self._Divider = ttk.Label(self._Frame, text=":")
-        self._Divider.config(justify="center", width=1)
-        self._Divider.grid(row=0, column=1)
-        
+
     def _EntryCheck(self, *args, **kw):
         Entry = kw.pop('Entry', None)
         Value = kw.pop('Value', None)
