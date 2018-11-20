@@ -19,19 +19,18 @@ class GraphPage(tk.Frame):
 
     def __init__(self, parent, controller, SQL):
         tk.Frame.__init__(self, parent)
+        
         label = tk.Label(self, text="Graph Page!")
-        label.pack(pady=10,padx=10)
+        label.grid(row=0, column=0, pady=10, padx=10, sticky="nsew")
 
         f = Figure(figsize=(5,5), dpi=100)
         a = f.add_subplot(111)
         a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
 
-        
-
         canvas = FigureCanvasTkAgg(f, self)
         canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+        canvas.get_tk_widget().grid(row=1, column=0, sticky="nsew")
 
-        toolbar = NavigationToolbar2Tk(canvas, self)
-        toolbar.update()
-        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        toolbarFrame = tk.Frame(master=self)
+        toolbarFrame.grid(row=2,column=0, sticky="nsew")
+        toolbar = NavigationToolbar2Tk(canvas, toolbarFrame)
