@@ -23,9 +23,7 @@ class UrenRegistratie(tk.Frame):
     Title = "Uren registratie"
     
     def __init__(self, parent, controller, SQL):
-        tk.Frame.__init__(self, parent)       
-        
-        self.bind("<Button-1>", self._DestroyCalendar)  
+        tk.Frame.__init__(self, parent)
         
         self._Datum = calendar.datetime.date.today()        
         self._CalendarFrame = None 
@@ -57,7 +55,8 @@ class UrenRegistratie(tk.Frame):
     def _ShowCalendar(self):
         if self._CalendarFrame == None:
             self._CalendarFrame = Calendar(firstweekday=calendar.MONDAY, callback=self._DestroyCalendar)
-            self._CalendarFrame.place(in_=self, relx=.03, rely=.05)                                       
+            self._CalendarFrame.place(in_=self, relx=.03, rely=.05) 
+            self.bind("<Button-1>", self._DestroyCalendar)                                      
         else: 
             self._DestroyCalendar()           
                    
@@ -65,6 +64,7 @@ class UrenRegistratie(tk.Frame):
         if self._CalendarFrame.selection is not None:
                 self._Datum = self._CalendarFrame.selection.date()
                 self._ButtonDatum.config(text=self._Datum)
-                
+        
+        self.unbind("<Button-1>")        
         self._CalendarFrame.destroy()
         self._CalendarFrame = None
