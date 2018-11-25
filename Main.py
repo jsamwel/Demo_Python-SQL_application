@@ -15,34 +15,32 @@ from Pages.StartPage import StartPage
 
 from Tools.SQLConnection import Connection
 
-class Main():
-    def __init__(self, Frame): 
-        self.Frame = Frame 
+class Main(tk.Tk):
+    def __init__(self): 
+        super().__init__() 
         #self.Frame.root.geometry("800x400+100+100")
-        self.Frame.attributes("-fullscreen", True)
-        self.Frame.bind("<Escape>", self._Quit)
+        self.attributes("-fullscreen", True)
+        self.bind("<Escape>", self._Quit)
         
         #Select style for ttk
         #'winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative'
-        style = ttk.Style()
-        style.theme_use('clam')
+        Style = ttk.Style()
+        Style.theme_use('clam')
         #self.Frame.set_theme("equilux") 
        
         #Frames for the pages and the navigation
-        self.container = ttk.Frame(self.Frame)
-        
+        self.container = ttk.Frame(self)        
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(0, weight=1)
-        
-        self.NavigationFrame = ttk.Frame(self.Frame)
-        
         self.container.place(relx=0.15, rely=0 , relwidth=.85, relheight=1)
+        
+        self.NavigationFrame = ttk.Frame(self)        
         self.NavigationFrame.place(relx=0, rely=0 , relwidth=.15, relheight=1)
         
         self._CreateSQLConnection()
         self._CreatePages()
         
-        self.show_frame(StartPage)
+        self.ShowFrame(StartPage)
         
     def _CreateSQLConnection(self):
          #Create SQl connection
@@ -75,10 +73,10 @@ class Main():
             
         for I in range(len(self.Pages)):
             #Navigation command for the button
-            action = lambda x = self.Pages[I]: self.show_frame(x)   
+            action = lambda x = self.Pages[I]: self.ShowFrame(x)   
             
             #Location for the button
-            y = 35 + I * 28            
+            y = .05 + I * .04            
             
             #Create the page
             frame = self.Pages[I](self.container, self, self.SQL)
@@ -93,19 +91,16 @@ class Main():
             #Create button for the page            
             self.NavigationButtons[I] = (ttk.Button(self.NavigationFrame, text=self.Pages[I].Title))                      
             self.NavigationButtons[I].config(command=action)
-            self.NavigationButtons[I].place(relx=0, y=y, relwidth=1)  
+            self.NavigationButtons[I].place(relx=0, rely=y, relwidth=1)  
    
-    def show_frame(self, cont):
+    def ShowFrame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
         
     def _Quit(self, event=None):
         self.SQL.DisConnect()
-        self.Frame.destroy()
+        self.destroy()
  
-if __name__ == '__main__':       
-    #root = tk.Tk()
-    root = themed_tk.ThemedTk()
-    
-    app = Main(root)
-    root.mainloop()   
+if __name__ == '__main__':  
+    app = Main()
+    app.mainloop()   

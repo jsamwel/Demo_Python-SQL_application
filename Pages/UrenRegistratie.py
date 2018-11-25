@@ -1,3 +1,7 @@
+
+import sys
+sys.path.insert(0, sys.path[0]+'../')
+
 import calendar
 
 import tkinter as tk
@@ -10,20 +14,21 @@ class InvoerRij:
     def __init__(self, Frame, Werknemer, x, y, ShowLabels=False):        
         self.Frame = Frame
         
-        self.Werknemer = tk.Label(self.Frame, text=Werknemer)
+        self.Werknemer = ttk.Label(self.Frame, text=Werknemer)
         self.Werknemer.place(relx=x, rely=y)
         
         self.StartTijd = TimeEntry(self.Frame, x+.1, y)
+        self.StopTijd = TimeEntry(self.Frame, x+.18, y)
         
     def GetData(self):
-        return self.StartTijd.get()
+        return self.StartTijd.Time, self.StopTijd.Time
             
-class UrenRegistratie(tk.Frame):
+class UrenRegistratie(ttk.Frame):
     Layout = "grid"
     Title = "Uren registratie"
     
     def __init__(self, parent, controller, SQL):
-        tk.Frame.__init__(self, parent)
+        ttk.Frame.__init__(self, parent)
         
         self._Datum = calendar.datetime.date.today()        
         self._CalendarFrame = None 
@@ -36,11 +41,14 @@ class UrenRegistratie(tk.Frame):
     def _BuildPage(self):
         self._Werknemers = ('Yoeri Samwel','Jolan Samwel' , 'Fiona van de Haar')
         
-        self._LabelStartTijd = tk.Label(self, text='Start tijd')
-        self._LabelStartTijd.place(relx=.15, rely=.06)
+        LabelStartTijd = ttk.Label(self, text='Start tijd')
+        LabelStartTijd.place(relx=.15, rely=.06)
         
-        self._LabelDatum = ttk.Label(self, text='Date:')
-        self._LabelDatum.place(relx=.05, rely=.02, relwidth=.03, relheight=.03)       
+        LabelStopTijd = ttk.Label(self, text='Stop tijd')
+        LabelStopTijd.place(relx=.23, rely=.06)
+        
+        LabelDatum = ttk.Label(self, text='Date:')
+        LabelDatum.place(relx=.05, rely=.02, relwidth=.03, relheight=.03)       
             
         self._ButtonDatum = ttk.Button(self, text=self._Datum)
         self._ButtonDatum.config(command=self._ShowCalendar)

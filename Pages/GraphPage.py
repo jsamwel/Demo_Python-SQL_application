@@ -5,6 +5,9 @@ Created on Wed Nov 14 14:10:20 2018
 @author: JolanSamwel
 """
 
+import sys
+sys.path.insert(0, sys.path[0]+'../')
+
 import matplotlib
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -13,14 +16,14 @@ from matplotlib.figure import Figure
 import tkinter as tk
 from tkinter import ttk
 
-class GraphPage(tk.Frame):
+class GraphPage(ttk.Frame):
     Layout = "grid"
     Title = "Graph page"
 
     def __init__(self, parent, controller, SQL):
-        tk.Frame.__init__(self, parent)
+        ttk.Frame.__init__(self, parent)
         
-        label = tk.Label(self, text="Graph Page!")
+        label = ttk.Label(self, text="Graph Page!")
         label.grid(row=0, column=0, pady=10, padx=10, sticky="nsew")
 
         f = Figure(figsize=(5,5), dpi=100)
@@ -31,6 +34,6 @@ class GraphPage(tk.Frame):
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, sticky="nsew")
 
-        toolbarFrame = tk.Frame(master=self)
+        toolbarFrame = ttk.Frame(master=self)
         toolbarFrame.grid(row=2,column=0, sticky="nsew")
         toolbar = NavigationToolbar2Tk(canvas, toolbarFrame)

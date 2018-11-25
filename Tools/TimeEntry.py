@@ -25,11 +25,11 @@ class TimeEntry():
         
         #Entry's for the hours and the minutes
         EntryHours = ttk.Entry(FrameTime, textvariable=self._Hours)
-        EntryHours.config(justify="right", width=5)
+        EntryHours.config(justify="center", width=5)
         EntryHours.grid(row=0, column=0)
         
         EntryMinutes = ttk.Entry(FrameTime, textvariable=self._Minutes)
-        EntryMinutes.config(justify="right", width=5)
+        EntryMinutes.config(justify="center", width=5)
         EntryMinutes.grid(row=0, column=2)
         
          #Adds a : between the entry for hours and minutes
@@ -37,7 +37,7 @@ class TimeEntry():
         Divider.config(justify="center", width=1)
         Divider.grid(row=0, column=1)
         
-        #When the input changes check the imput
+        #When the input changes check the input
         self._Hours.trace('w', lambda *args, **kw: self._EntryCheck(Entry=EntryHours, 
                                                             Value=self._Hours, Limit=24))  
                 
@@ -83,6 +83,7 @@ class TimeEntry():
         
     @Time.setter
     def Time(self, value):
+        #Requires time in format 00:00
         self._Time = value
         
         self._Hours = value[:2]
