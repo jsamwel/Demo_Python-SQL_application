@@ -86,5 +86,5 @@ class TimeEntry():
         #Requires time in format 00:00
         self._Time = value
         
-        self._Hours = value[:2]
-        self._Minutes= value[3:5]
+        self._Hours.set(value[:2])
+        self._Minutes.set(value[3:5])
