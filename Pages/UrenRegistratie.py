@@ -1,4 +1,3 @@
-
 import sys
 sys.path.insert(0, sys.path[0]+'../')
 
@@ -17,8 +16,11 @@ class InvoerRij:
         self.Werknemer = ttk.Label(self.Frame, text=Werknemer)
         self.Werknemer.place(relx=x, rely=y)
         
-        self.StartTijd = TimeEntry(self.Frame, x+.1, y)
-        self.StopTijd = TimeEntry(self.Frame, x+.18, y)
+        self.StartTijd = TimeEntry(self.Frame)
+        self.StartTijd.place(relx=x+.1, rely=y)
+        
+        self.StopTijd = TimeEntry(self.Frame)
+        self.StopTijd.place(relx=x+.18, rely=y)
         
     def GetData(self):
         return self.StartTijd.Time, self.StopTijd.Time

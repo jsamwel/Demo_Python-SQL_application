@@ -8,11 +8,9 @@ Created on Mon Nov 19 16:11:10 2018
 import tkinter as tk
 from tkinter import ttk
 
-class TimeEntry():
-    def __init__(self, Frame, x, y):
-        #Created a new frame
-        FrameTime = ttk.Frame(Frame)
-        FrameTime.place(relx=x, rely=y)
+class TimeEntry(ttk.Frame):
+    def __init__(self, parent):
+        ttk.Frame.__init__(self, parent)
         
         self._Time = "00:00"
         
@@ -24,17 +22,17 @@ class TimeEntry():
         self._Minutes.set("00")
         
         #Entry's for the hours and the minutes
-        EntryHours = ttk.Entry(FrameTime, textvariable=self._Hours)
+        EntryHours = ttk.Entry(self, textvariable=self._Hours)
         EntryHours.config(justify="center", width=5)
         EntryHours.grid(row=0, column=0)
         
-        EntryMinutes = ttk.Entry(FrameTime, textvariable=self._Minutes)
+        EntryMinutes = ttk.Entry(self, textvariable=self._Minutes)
         EntryMinutes.config(justify="center", width=5)
         EntryMinutes.grid(row=0, column=2)
         
          #Adds a : between the entry for hours and minutes
-        Divider = ttk.Label(FrameTime, text=":")
-        Divider.config(justify="center", width=1)
+        Divider = ttk.Label(self, text=":")
+        Divider.config(justify="center", width=.5)
         Divider.grid(row=0, column=1)
         
         #When the input changes check the input
@@ -86,5 +84,5 @@ class TimeEntry():
         #Requires time in format 00:00
         self._Time = value
         
-        self._Hours = value[:2]
-        self._Minutes= value[3:5]
+        self._Hours.set(value[:2])
+        self._Minutes.set(value[3:5])

@@ -26,6 +26,11 @@ class Connection:
         
         return self.cur.fetchall()
     
+    def FetchColumn(self, Table, Column):
+        self.cur.execute("select %s from %s", (Table, Column))
+        
+        return [r[0] for r in self.cur.fetchall()]
+    
     def Connect(self):
         # Create connection with database
         try:

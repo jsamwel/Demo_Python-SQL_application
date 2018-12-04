@@ -12,10 +12,11 @@ from ttkthemes import themed_tk
 from Pages.UrenRegistratie import UrenRegistratie
 from Pages.GraphPage import GraphPage
 from Pages.StartPage import StartPage
+from Pages.Werknemers import Werknemers
 
 from Tools.SQLConnection import Connection
 
-class Main(tk.Tk):
+class Main(themed_tk.ThemedTk):
     def __init__(self): 
         super().__init__() 
         #self.Frame.root.geometry("800x400+100+100")
@@ -23,10 +24,8 @@ class Main(tk.Tk):
         self.bind("<Escape>", self._Quit)
         
         #Select style for ttk
-        #'winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative'
-        Style = ttk.Style()
-        Style.theme_use('clam')
-        #self.Frame.set_theme("equilux") 
+        #print(self.get_themes())
+        self.set_theme('clam')
        
         #Frames for the pages and the navigation
         self.container = ttk.Frame(self)        
@@ -54,7 +53,7 @@ class Main(tk.Tk):
         
     def _CreatePages(self):
         #Create pages and navigation buttons  
-        self.Pages = (StartPage, GraphPage, UrenRegistratie)
+        self.Pages = (StartPage, GraphPage, UrenRegistratie, Werknemers)
         self.NavigationButtons = {}        
         self.frames = {}
         
