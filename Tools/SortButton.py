@@ -33,17 +33,16 @@ class SortButton(ttk.Frame):
         self._lbutton.pack()
         
     def _SortList(self):
-        if self.State == 'Default':
-            if self._Callback is not None: self.Callback(self.State)
+        if self.State == 'Default':            
             self.State = 'Up'
-        elif self.State == 'Up':
-            if self._Callback is not None: self.Callback(self.State)
+        elif self.State == 'Up':            
             self.State = 'Down'
-        elif self.State == 'Down':
-            if self._Callback is not None: self.Callback(self.State)
+        elif self.State == 'Down':            
             self.State = 'Default'
         else:
             self.State = 'Default' 
+            
+        if self._Callback is not None: self.Callback(self.State)
             
     @property        
     def State(self):
