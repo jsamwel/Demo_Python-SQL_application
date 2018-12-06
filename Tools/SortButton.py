@@ -10,12 +10,12 @@ import tkinter.ttk as ttk
 class SortButton(ttk.Frame):
     _State = 'Default'
     
-    def __init__(self, parent, Callback):
-        ttk.Frame.__init__(self, parent)
+    def __init__(self, parent, Callback, text):
+        ttk.Frame.__init__(self, parent) 
         
         self._Callback = Callback
         self._SetStyle()
-        self._SetWidget()
+        self._SetWidget(text)
 
     def _SetStyle(self):
         style = ttk.Style()
@@ -27,22 +27,20 @@ class SortButton(ttk.Frame):
         style.layout('SortDown.TButton', arrow_layout('down'))
         style.layout('Sort.TButton', ([('Button.focus', {'children': [('Button.label', None)]})]))
         
-    def _SetWidget(self):
+    def _SetWidget(self, Text):
         self._lbutton = ttk.Button(self, style='Sort.TButton',
-                                   text='Left1.Button', command=self._SortList)
+                                   text=Text, command=self._SortList)
         self._lbutton.pack()
         
     def _SortList(self):
-        if self.State == 'Default':            
+        if self.State == 'Default':
+            self.State = 'Up'          
+        elif self.State == 'Up':
+            self.State = 'Down'           
+        elif self.State == 'Down':
             self.State = 'Up'
-        elif self.State == 'Up':            
-            self.State = 'Down'
-        elif self.State == 'Down':            
-            self.State = 'Default'
-        else:
-            self.State = 'Default' 
             
-        if self._Callback is not None: self.Callback(self.State)
+        if self._Callback is not None: self._Callback(self, self.State)     
             
     @property        
     def State(self):
@@ -61,4 +59,4 @@ class SortButton(ttk.Frame):
             self._State = 'Down'
         else:
             self._lbutton.config(style='Sort.TButton')
-            self._State = 'Default'        
+            self._State = 'Default'  
