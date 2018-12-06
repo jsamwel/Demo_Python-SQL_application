@@ -32,22 +32,27 @@ class Werknemerlijst(ttk.Frame):
         self._CreateRows()
         
     def Sort(self, Name, state):
+        #Remove list
         for widget in self._rijen:
             widget[0].destroy()
             widget[1].destroy()
             
-        self._rijen = []            
+        self._rijen = []    
+
+        #Determine which button is pressed and reset the other buttons        
         column = self._SortKnoppen.index(Name)
         
         for i in range(len(self._SortKnoppen)):
             if i is not column:
                 self._SortKnoppen[i].State = 'Default'
         
+        #Sort list according to which sortingbutton is pressed
         if state == 'Up':
             self._Werknemers.sort(key=lambda elem: elem[column], reverse=True)
         elif state == 'Down':
             self._Werknemers.sort(key=lambda elem: elem[column])
             
+        #Recreate list after it is sorted
         self._CreateRows()    
             
     def _CreateRows(self):
