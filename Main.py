@@ -31,7 +31,7 @@ class Main(themed_tk.ThemedTk):
         self.container = ttk.Frame(self)        
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(0, weight=1)
-        self.container.place(relx=0.15, rely=0 , relwidth=.85, relheight=1)
+        self.container.place(relx=0.15, rely=0, relwidth=.85, relheight=1)
         
         self.NavigationFrame = ttk.Frame(self)        
         self.NavigationFrame.place(relx=0, rely=0 , relwidth=.15, relheight=1)
