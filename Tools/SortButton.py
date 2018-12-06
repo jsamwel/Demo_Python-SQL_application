@@ -59,4 +59,4 @@ class SortButton(ttk.Frame):
             self._State = 'Down'
         else:
             self._lbutton.config(style='Sort.TButton')
-            self._State = 'Default'        
+            self._State = 'Default'  
