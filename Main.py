@@ -43,12 +43,12 @@ class Main(themed_tk.ThemedTk):
         
     def _CreateSQLConnection(self):
          #Create SQl connection
-        hostname = 'localhost'
-        hostname = 'postgres'
-        password = 'WWPostgres'
-        database = 'DataDevelopment'
+        hostname    = 'localhost'
+        user        = 'postgres'
+        password    = 'WWPostgres'
+        database    = 'DataDevelopment'
         
-        self.SQL = Connection(hostname, hostname, password, database)
+        self.SQL = Connection(hostname, user, password, database)
         self.SQL.Connect()         
         
     def _CreatePages(self):

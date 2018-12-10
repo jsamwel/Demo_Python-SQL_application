@@ -35,12 +35,14 @@ class Connection:
         # Create connection with database
         try:
             self.conn = psycopg2.connect(database=self.DB, user=self.username, 
-                                     password=self.password)
+                                     password=self.password)  
             
             self.cur = self.conn.cursor()
-            self.Connected = 1
-        except:
+        except psycopg2.OperationalError as e:
             self.Connected = 0
+            print('Unable to connect!\n{0}'.format(e))
+        else:
+            self.Connected = 1
         
     def DisConnect(self):
         if self.Connected:
