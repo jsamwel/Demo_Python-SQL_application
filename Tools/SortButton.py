@@ -49,14 +49,14 @@ class SortButton(ttk.Frame):
     @State.setter
     def State(self, value):
         if value == 'Default':
-            self._lbutton.config(style='Sort.TButton')
             self._State = 'Default'
+            self._lbutton.config(style='Sort.TButton')            
         elif value == 'Up':
-            self._lbutton.config(style='SortUp.TButton')
             self._State = 'Up'
+            self._lbutton.config(style='SortUp.TButton')            
         elif value == 'Down':
-            self._lbutton.config(style='SortDown.TButton')
             self._State = 'Down'
+            self._lbutton.config(style='SortDown.TButton')            
         else:
+            self._State = 'Default'
             self._lbutton.config(style='Sort.TButton')
-            self._State = 'Default'  

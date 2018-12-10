@@ -34,8 +34,8 @@ class Werknemerlijst(ttk.Frame):
     def Sort(self, Name, state):
         #Remove list
         for widget in self._rijen:
-            widget[0].destroy()
-            widget[1].destroy()
+            for i in range(len(self._Columns)):
+                widget[i].destroy()
             
         self._rijen = []    
 
@@ -48,9 +48,9 @@ class Werknemerlijst(ttk.Frame):
         
         #Sort list according to which sortingbutton is pressed
         if state == 'Up':
-            self._Werknemers.sort(key=lambda elem: elem[column], reverse=True)
-        elif state == 'Down':
             self._Werknemers.sort(key=lambda elem: elem[column])
+        elif state == 'Down':
+            self._Werknemers.sort(key=lambda elem: elem[column], reverse=True)
             
         #Recreate list after it is sorted
         self._CreateRows()    
@@ -81,11 +81,11 @@ class Werknemers(ttk.Frame):
         
         self._Lijst = None
         
-        columns = ['Naam', 'Leeftijd']
-        Werknemers = [['Yoeri Samwel', '03-12-1986'], 
-                      ['Jolan Samwel', '06-04-1992'], 
-                      ['Fiona van de Haar', '23-04-1994'],
-                      ['Remy Samwel', '25-08-1994']]
+        columns = ['Naam', 'Geboren', 'Leeftijd']
+        Werknemers = [['Yoeri Samwel', '1986-12-03', '32'], 
+                      ['Jolan Samwel', '1992-04-06', '26'], 
+                      ['Fiona van de Haar', '1994-04-23', '24'],
+                      ['Remy Samwel', '1994-08-25', '24']]
         
         self._CreateList(Werknemers, columns)
         
