@@ -15,34 +15,47 @@ class Connection:
         self.DB = database
         
         self.Connected = 0
+        self.Error = ''
         
-    def InsertQuery(self, Command):     
-        self.cur.execute(Command)
+    def InsertQuery(self, Command):
+        cur = self.conn.cursor()
+        cur.execute(Command)
         
-        self.conn.commit()        
+        self.conn.commit()  
+        cur.close()
  
     def FetchQuery(self, Command):
-        self.cur.execute(Command)
+        cur = self.conn.cursor()
+        cur.execute(Command)
         
-        return self.cur.fetchall()
+        data = cur.fetchall()
+        
+        cur.close()
+        
+        return data
     
     def FetchColumn(self, Table, Column):
-        self.cur.execute("select %s from %s", (Table, Column))
+        cur = self.conn.cursor()
+        cur.execute("select %s from %s", (Table, Column))
         
-        return [r[0] for r in self.cur.fetchall()]
+        data = [r[0] for r in self.cur.fetchall()]
+        
+        cur.close()
+        
+        return data
     
     def Connect(self):
         # Create connection with database
         try:
             self.conn = psycopg2.connect(database=self.DB, user=self.username, 
-                                     password=self.password)  
+                                     password=self.password)            
             
-            self.cur = self.conn.cursor()
         except psycopg2.OperationalError as e:
             self.Connected = 0
-            print('Unable to connect!\n{0}'.format(e))
+            self.Error = e
         else:
             self.Connected = 1
+            self.Error = ''
         
     def DisConnect(self):
         if self.Connected:

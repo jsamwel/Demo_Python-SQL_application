@@ -20,12 +20,14 @@ class Main(themed_tk.ThemedTk):
     def __init__(self): 
         super().__init__() 
         #self.Frame.root.geometry("800x400+100+100")
-        self.attributes("-fullscreen", True)
-        self.bind("<Escape>", self._Quit)
+        #self.attributes("-fullscreen", True)
+        #self.bind("<Escape>", self._Quit)
+        
+        self.state('zoomed')
         
         #Select style for ttk
         #print(self.get_themes())
-        self.set_theme('clam')
+        self.set_theme('arc')
        
         #Frames for the pages and the navigation
         self.container = ttk.Frame(self)        
@@ -38,6 +40,7 @@ class Main(themed_tk.ThemedTk):
         
         self._CreateSQLConnection()
         self._CreatePages()
+        self._CreateMenu()
         
         self.ShowFrame(StartPage)
         
@@ -56,10 +59,6 @@ class Main(themed_tk.ThemedTk):
         self.Pages = (StartPage, GraphPage, UrenRegistratie, Werknemers)
         self.NavigationButtons = {}        
         self.frames = {}
-        
-        self.QuitButton = ttk.Button(self.NavigationFrame, text="Exit")
-        self.QuitButton.config(command=self._Quit)
-        self.QuitButton.place(relx=0, rely=.95, relwidth=1)
         
         self.ConnectionLabel = ttk.Label(self.NavigationFrame, text="")
         self.ConnectionLabel.config(anchor="center")
@@ -91,6 +90,24 @@ class Main(themed_tk.ThemedTk):
             self.NavigationButtons[I] = (ttk.Button(self.NavigationFrame, text=self.Pages[I].Title))                      
             self.NavigationButtons[I].config(command=action)
             self.NavigationButtons[I].place(relx=0, rely=y, relwidth=1)  
+            
+    def _CreateMenu(self):
+        self._Menubar = tk.Menu(self)
+        
+        #Add file menu
+        self._filemenu = tk.Menu(self._Menubar, tearoff=0)        
+        self._filemenu.add_command(label="Settings", command=None)
+        self._filemenu.add_separator()        
+        self._filemenu.add_command(label="Exit", command=self._Quit)        
+        self._Menubar.add_cascade(label="File", menu=self._filemenu)
+        
+        #Add help menu
+        self._helpmenu = tk.Menu(self._Menubar, tearoff=0)
+        self._helpmenu.add_command(label="Help Index", command=None)
+        self._helpmenu.add_command(label="About...", command=None)
+        self._Menubar.add_cascade(label="Help", menu=self._helpmenu)
+        
+        self.config(menu=self._Menubar)
    
     def ShowFrame(self, cont):
         frame = self.frames[cont]
