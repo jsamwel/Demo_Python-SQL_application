@@ -18,9 +18,11 @@ class InvoerRij:
         
         self.StartTijd = TimeEntry(self.Frame)
         self.StartTijd.place(relx=x+.1, rely=y)
+        self.StartTijd.Time = "07:00"
         
         self.StopTijd = TimeEntry(self.Frame)
         self.StopTijd.place(relx=x+.18, rely=y)
+        self.StopTijd.Time = "16:00"
         
     def GetData(self):
         return self.StartTijd.Time, self.StopTijd.Time

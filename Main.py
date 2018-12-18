@@ -21,9 +21,10 @@ class Main(themed_tk.ThemedTk):
         super().__init__() 
         #self.Frame.root.geometry("800x400+100+100")
         #self.attributes("-fullscreen", True)
-        #self.bind("<Escape>", self._Quit)
         
+        self.bind("<Escape>", self._Quit)        
         self.state('zoomed')
+        self.protocol("WM_DELETE_WINDOW", self._Quit)
         
         #Select style for ttk
         #print(self.get_themes())
