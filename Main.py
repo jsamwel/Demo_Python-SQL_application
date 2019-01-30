@@ -90,10 +90,12 @@ class Main(themed_tk.ThemedTk):
             elif frame.Layout == "grid":                
                 frame.grid(row=0, column=0, sticky="nsew")
             
-            # Create button for the page            
-            self.NavigationButtons[I] = (ttk.Button(self.NavigationFrame, text=self.Pages[I].Title))                      
-            self.NavigationButtons[I].config(command=action)
-            self.NavigationButtons[I].place(relx=0, rely=y, relwidth=1, relheight=.04)  
+            # Create button for the page 
+            # Excludes the settingspage from the navigationbar
+            if self.Pages[I] is not SettingsPage:
+                self.NavigationButtons[I] = (ttk.Button(self.NavigationFrame, text=self.Pages[I].Title))                      
+                self.NavigationButtons[I].config(command=action)
+                self.NavigationButtons[I].place(relx=0, rely=y, relwidth=1, relheight=.04)  
             
     def _CreateMenu(self):
         self._Menubar = tk.Menu(self)
