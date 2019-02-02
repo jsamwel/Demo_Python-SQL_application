@@ -51,7 +51,7 @@ class UrenRegistratie(ttk.Frame):
         self._CalendarFrame = None 
         
         self._SaveButton = ttk.Button(self, text='Save', command=self._Save)
-        self._SaveButton.place(relx=.3, rely=.02)
+        self._SaveButton.place(relx=.4, rely=.02)
         
         self._Werknemers = None
         self._InvoerRijen = {}  
