@@ -18,16 +18,16 @@ class Connection:
         self.Connected = tk.IntVar()
         self.Error = ''
         
-    def InsertQuery(self, Command):
+    def InsertQuery(self, Command, Data):
         cur = self.conn.cursor()
-        cur.execute(Command)
+        cur.execute(Command, Data)
         
         self.conn.commit()  
         cur.close()
  
-    def FetchQuery(self, Command):
+    def FetchQuery(self, Command, Data):
         cur = self.conn.cursor()
-        cur.execute(Command)
+        cur.execute(Command, Data)
         
         data = cur.fetchall()
         

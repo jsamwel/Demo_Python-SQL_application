@@ -73,11 +73,8 @@ class TimeEntry(ttk.Frame):
      
     @property    
     def Time(self):        
-        return self._Time
-    
-    @Time.getter
-    def Time(self):
         self._Time = self._Hours.get() + ":" + self._Minutes.get()
+        return self._Time
         
     @Time.setter
     def Time(self, value):
