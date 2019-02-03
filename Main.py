@@ -62,17 +62,6 @@ class Main(themed_tk.ThemedTk):
         self.NavigationButtons = {}        
         self.frames = {}
         
-        """
-        self.ConnectionLabel = ttk.Label(self.NavigationFrame, text="")
-        self.ConnectionLabel.config(anchor="center")
-        self.ConnectionLabel.place(relx=0, rely=.01, relwidth=1)
-         
-        if self.SQL.Connected:       
-            self.ConnectionLabel.config(text="", foreground="black")
-        else:
-            self.ConnectionLabel.config(text="Not connected", foreground="red")
-        """
-        
         for I in range(len(self.Pages)):
             # Navigation command for the button
             action = lambda x = self.Pages[I]: self.ShowFrame(x)   
