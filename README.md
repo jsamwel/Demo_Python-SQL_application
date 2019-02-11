@@ -1,6 +1,1 @@
-Pages-tkinter
-Navigation with multiple pages using tkinter
-
-Based on the tutorial by https://pythonprogramming.net/change-show-new-frame-tkinter/
-
-Made to demonstrate a QUI build with tkinter and that has a connection to a postgress SQL server
+A demonstration for a GUI made with tkinter that serves as an interface for a postgres database. This demonstration was made to help teach my brother programming in python and to show what the possibilities are for such a GUI.
