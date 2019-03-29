@@ -45,17 +45,12 @@ class UrenRegistratie(ttk.Frame):
     def __init__(self, parent, controller, SQL):
         ttk.Frame.__init__(self, parent)
         
-        self.SQL = SQL
-        
-        self._Datum = calendar.datetime.date.today()        
-        self._CalendarFrame = None 
-        
-        self._SaveButton = ttk.Button(self, text='Save', command=self._Save)
-        self._SaveButton.place(relx=.4, rely=.02)
-        
+        self.SQL = SQL        
+           
         self._Werknemers = None
         self._InvoerRijen = {}  
 
+        self._BuildLabelsButtons()
         self._BuildPage()        
       
     def _BuildPage(self):        
@@ -68,36 +63,44 @@ class UrenRegistratie(ttk.Frame):
         RegistratieQuery = """select * from uurregistratie 
                             where date = %s"""
         
-        self._Werknemers = self.SQL.FetchQuery(WerknemerQuery, [self._Datum.strftime('%d-%m-%Y'), self._Datum.strftime('%d-%m-%Y')])
-        self._UurRegOld = self.SQL.FetchQuery(RegistratieQuery, [self._Datum.strftime('%d-%m-%Y')])
-                
-        LabelStartTijd = ttk.Label(self, text='Start tijd')
-        LabelStartTijd.place(relx=.15, rely=.06)
+        if self.SQL.Connected.get():
+            self._Werknemers = self.SQL.FetchQuery(WerknemerQuery, [self._Datum.strftime('%d-%m-%Y'), self._Datum.strftime('%d-%m-%Y')])
+            self._UurRegOld = self.SQL.FetchQuery(RegistratieQuery, [self._Datum.strftime('%d-%m-%Y')])
+            
+            for F in range(len(self._Werknemers)):
+                RegExist = 0
+                x = .05
+                y = .1 + F * .05
+                            
+                for U in self._UurRegOld:
+                    if U[2] == self._Werknemers[F][0]: 
+                        RegExist = 1
+                        RegOld = U
+                    
+                if RegExist:
+                    self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y, RegOld)
+                else:
+                    self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y)
         
-        LabelStopTijd = ttk.Label(self, text='Stop tijd')
-        LabelStopTijd.place(relx=.23, rely=.06)
+    def _BuildLabelsButtons(self): 
+        self._Datum = calendar.datetime.date.today()        
+        self._CalendarFrame = None
         
-        LabelDatum = ttk.Label(self, text='Date:')
-        LabelDatum.place(relx=.05, rely=.02, relwidth=.03, relheight=.03)       
+        self._SaveButton = ttk.Button(self, text='Save', command=self._Save)
+        self._SaveButton.place(relx=.4, rely=.02)
+        
+        self._LabelStartTijd = ttk.Label(self, text='Start tijd')
+        self._LabelStartTijd.place(relx=.15, rely=.06)
+        
+        self._LabelStopTijd = ttk.Label(self, text='Stop tijd')
+        self._LabelStopTijd.place(relx=.23, rely=.06)
+        
+        self._LabelDatum = ttk.Label(self, text='Date:')
+        self._LabelDatum.place(relx=.05, rely=.02, relwidth=.03, relheight=.03)       
             
         self._ButtonDatum = ttk.Button(self, text=self._Datum)
         self._ButtonDatum.config(command=self._ShowCalendar)
         self._ButtonDatum.place(relx=.08, rely=.02, relheight=.03)
-           
-        for F in range(len(self._Werknemers)):
-            RegExist = 0
-            x = .05
-            y = .1 + F * .05
-                        
-            for U in self._UurRegOld:
-                if U[2] == self._Werknemers[F][0]: 
-                    RegExist = 1
-                    RegOld = U
-                
-            if RegExist:
-                self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y, RegOld)
-            else:
-                self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y)
         
     def _ShowCalendar(self):
         if self._CalendarFrame == None:
@@ -118,20 +121,21 @@ class UrenRegistratie(ttk.Frame):
         self._CalendarFrame = None
         
     def _Save(self):
-        for rij in self._InvoerRijen:
-            Data = self._InvoerRijen[rij].GetData()
-            
-            if self._InvoerRijen[rij].Updated:
-                UpdateQuery = """UPDATE uurregistratie 
-                                SET starttime = %s, endtime = %s 
-                                WHERE date = %s and employee = %s"""
-                                                
-                self.SQL.InsertQuery(UpdateQuery, [Data[1], Data[2], self._Datum.strftime('%Y-%m-%d'), Data[0]])
+        if self.SQL.Connected.get():
+            for rij in self._InvoerRijen:
+                Data = self._InvoerRijen[rij].GetData()
                 
-            else:
-                InsertQuery = """INSERT INTO uurregistratie
-                                VALUES(DEFAULT, %s, %s, %s, %s)"""
-                                
-                self.SQL.InsertQuery(InsertQuery, [self._Datum.strftime('%Y-%m-%d'), Data[0], Data[1], Data[2]])   
-                
-        self._BuildPage()
+                if self._InvoerRijen[rij].Updated:
+                    UpdateQuery = """UPDATE uurregistratie 
+                                    SET starttime = %s, endtime = %s 
+                                    WHERE date = %s and employee = %s"""
+                                                    
+                    self.SQL.InsertQuery(UpdateQuery, [Data[1], Data[2], self._Datum.strftime('%Y-%m-%d'), Data[0]])
+                    
+                else:
+                    InsertQuery = """INSERT INTO uurregistratie
+                                    VALUES(DEFAULT, %s, %s, %s, %s)"""
+                                    
+                    self.SQL.InsertQuery(InsertQuery, [self._Datum.strftime('%Y-%m-%d'), Data[0], Data[1], Data[2]])   
+                    
+            self._BuildPage()

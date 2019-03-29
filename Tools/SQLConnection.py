@@ -19,31 +19,56 @@ class Connection:
         self.Error = ''
         
     def InsertQuery(self, Command, Data):
-        cur = self.conn.cursor()
-        cur.execute(Command, Data)
-        
-        self.conn.commit()  
-        cur.close()
+        if self.Connected.get():
+            try:
+                cur = self.conn.cursor()
+                cur.execute(Command, Data)
+                
+                self.conn.commit()  
+                cur.close()
+                
+            except psycopg2.OperationalError as e:
+                self.Connected.set(0)
+                self.Error = e
  
     def FetchQuery(self, Command, Data):
-        cur = self.conn.cursor()
-        cur.execute(Command, Data)
-        
-        data = cur.fetchall()
-        
-        cur.close()
-        
-        return data
+        if self.Connected.get():
+            try:
+                cur = self.conn.cursor()
+                cur.execute(Command, Data)
+                
+                data = cur.fetchall()
+                
+                cur.close()
+                
+                return data
+            
+            except psycopg2.OperationalError as e:
+                self.Connected.set(0)
+                self.Error = e
+                return None
+        else:
+            return None
     
     def FetchColumn(self, Table, Column):
-        cur = self.conn.cursor()
-        cur.execute("select %s from %s", (Table, Column))
+        if self.Connected.get():
+            try:
+                cur = self.conn.cursor()
+                cur.execute("select %s from %s", (Table, Column))
+                
+                data = [r[0] for r in self.cur.fetchall()]
+                
+                cur.close()
+                
+                return data
+            
+            except psycopg2.OperationalError as e:
+                self.Connected.set(0)
+                self.Error = e
+                return None
         
-        data = [r[0] for r in self.cur.fetchall()]
-        
-        cur.close()
-        
-        return data
+        else:
+            return None
     
     def Connect(self):
         # Create connection with database
