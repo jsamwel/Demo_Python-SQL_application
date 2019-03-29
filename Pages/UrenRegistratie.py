@@ -3,29 +3,40 @@ sys.path.insert(0, sys.path[0]+'../')
 
 import calendar
 
-import tkinter as tk
 from tkinter import ttk
 
 from Tools.CalendarDialog import Calendar
 from Tools.TimeEntry import TimeEntry
 
 class InvoerRij:
-    def __init__(self, Frame, Werknemer, x, y, ShowLabels=False):        
+    def __init__(self, Frame, Werknemer, x, y, RegOld=None):        
         self.Frame = Frame
+        self.Updated = 0
+        self._Werknemer = Werknemer[0]
         
-        self.Werknemer = ttk.Label(self.Frame, text=Werknemer)
+        self.Werknemer = ttk.Label(self.Frame, text=self._Werknemer)
         self.Werknemer.place(relx=x, rely=y)
         
         self.StartTijd = TimeEntry(self.Frame)
         self.StartTijd.place(relx=x+.1, rely=y)
-        self.StartTijd.Time = "07:00"
         
         self.StopTijd = TimeEntry(self.Frame)
         self.StopTijd.place(relx=x+.18, rely=y)
-        self.StopTijd.Time = "16:00"
         
-    def GetData(self):
-        return self.StartTijd.Time, self.StopTijd.Time
+        if RegOld:            
+            self.Updated = 1
+            
+            self.StartTijd.Time = RegOld[3].strftime('%H:%M')
+            self.StopTijd.Time = RegOld[4].strftime('%H:%M')
+        
+    def GetData(self):        
+        return [self._Werknemer, self.StartTijd.Time, self.StopTijd.Time]
+    
+    def Destroy(self):
+        self.Werknemer.destroy()
+        self.StartTijd.destroy()
+        self.StopTijd.destroy()
+        
             
 class UrenRegistratie(ttk.Frame):
     Layout = "grid"
@@ -34,17 +45,32 @@ class UrenRegistratie(ttk.Frame):
     def __init__(self, parent, controller, SQL):
         ttk.Frame.__init__(self, parent)
         
+        self.SQL = SQL
+        
         self._Datum = calendar.datetime.date.today()        
         self._CalendarFrame = None 
+        
+        self._SaveButton = ttk.Button(self, text='Save', command=self._Save)
+        self._SaveButton.place(relx=.4, rely=.02)
         
         self._Werknemers = None
         self._InvoerRijen = {}  
 
         self._BuildPage()        
       
-    def _BuildPage(self):
-        self._Werknemers = ('Yoeri Samwel','Jolan Samwel' , 'Fiona van de Haar')
+    def _BuildPage(self):        
+        if self._InvoerRijen:
+            for i in self._InvoerRijen:
+                self._InvoerRijen[i].Destroy()                
         
+        WerknemerQuery = """select name from employees 
+                            where startdate < %s and (enddate is null or enddate >= %s)"""
+        RegistratieQuery = """select * from uurregistratie 
+                            where date = %s"""
+        
+        self._Werknemers = self.SQL.FetchQuery(WerknemerQuery, [self._Datum.strftime('%d-%m-%Y'), self._Datum.strftime('%d-%m-%Y')])
+        self._UurRegOld = self.SQL.FetchQuery(RegistratieQuery, [self._Datum.strftime('%d-%m-%Y')])
+                
         LabelStartTijd = ttk.Label(self, text='Start tijd')
         LabelStartTijd.place(relx=.15, rely=.06)
         
@@ -59,10 +85,19 @@ class UrenRegistratie(ttk.Frame):
         self._ButtonDatum.place(relx=.08, rely=.02, relheight=.03)
            
         for F in range(len(self._Werknemers)):
+            RegExist = 0
             x = .05
             y = .1 + F * .05
-            
-            self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y)
+                        
+            for U in self._UurRegOld:
+                if U[2] == self._Werknemers[F][0]: 
+                    RegExist = 1
+                    RegOld = U
+                
+            if RegExist:
+                self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y, RegOld)
+            else:
+                self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y)
         
     def _ShowCalendar(self):
         if self._CalendarFrame == None:
@@ -76,7 +111,27 @@ class UrenRegistratie(ttk.Frame):
         if self._CalendarFrame.selection is not None:
                 self._Datum = self._CalendarFrame.selection.date()
                 self._ButtonDatum.config(text=self._Datum)
+                self._BuildPage()
         
         self.unbind("<Button-1>")        
         self._CalendarFrame.destroy()
         self._CalendarFrame = None
+        
+    def _Save(self):
+        for rij in self._InvoerRijen:
+            Data = self._InvoerRijen[rij].GetData()
+            
+            if self._InvoerRijen[rij].Updated:
+                UpdateQuery = """UPDATE uurregistratie 
+                                SET starttime = %s, endtime = %s 
+                                WHERE date = %s and employee = %s"""
+                                                
+                self.SQL.InsertQuery(UpdateQuery, [Data[1], Data[2], self._Datum.strftime('%Y-%m-%d'), Data[0]])
+                
+            else:
+                InsertQuery = """INSERT INTO uurregistratie
+                                VALUES(DEFAULT, %s, %s, %s, %s)"""
+                                
+                self.SQL.InsertQuery(InsertQuery, [self._Datum.strftime('%Y-%m-%d'), Data[0], Data[1], Data[2]])   
+                
+        self._BuildPage()

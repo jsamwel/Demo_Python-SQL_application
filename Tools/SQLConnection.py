@@ -6,27 +6,28 @@ Created on Wed Aug 22 18:30:02 2018
 """
 
 import psycopg2
+import tkinter as tk
 
 class Connection:
     def __init__(self, Host, user, password, database):        
-        self.hostname = Host
-        self.username = user
-        self.password = password
-        self.DB = database
+        self.hostname   = Host
+        self.username   = user
+        self.password   = password
+        self.DB         = database
         
-        self.Connected = 0
+        self.Connected = tk.IntVar()
         self.Error = ''
         
-    def InsertQuery(self, Command):
+    def InsertQuery(self, Command, Data):
         cur = self.conn.cursor()
-        cur.execute(Command)
+        cur.execute(Command, Data)
         
         self.conn.commit()  
         cur.close()
  
-    def FetchQuery(self, Command):
+    def FetchQuery(self, Command, Data):
         cur = self.conn.cursor()
-        cur.execute(Command)
+        cur.execute(Command, Data)
         
         data = cur.fetchall()
         
@@ -51,12 +52,12 @@ class Connection:
                                      password=self.password)            
             
         except psycopg2.OperationalError as e:
-            self.Connected = 0
+            self.Connected.set(0)
             self.Error = e
         else:
-            self.Connected = 1
+            self.Connected.set(1)
             self.Error = ''
         
     def DisConnect(self):
-        if self.Connected:
+        if self.Connected.get():
             self.conn.close()        
