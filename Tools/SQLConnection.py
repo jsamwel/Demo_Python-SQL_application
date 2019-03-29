@@ -19,6 +19,8 @@ class Connection:
         self.Error = ''
         
     def InsertQuery(self, Command, Data):
+        # Function for inserting/updating data in the SQL database
+        
         if self.Connected.get():
             try:
                 cur = self.conn.cursor()
@@ -32,6 +34,8 @@ class Connection:
                 self.Error = e
  
     def FetchQuery(self, Command, Data):
+        # Function for retrieving data from the SQL database
+        
         if self.Connected.get():
             try:
                 cur = self.conn.cursor()
@@ -51,6 +55,9 @@ class Connection:
             return None
     
     def FetchColumn(self, Table, Column):
+        # Function for retrieving a single column from the SQL database, returns
+        # a list with one dimension
+        
         if self.Connected.get():
             try:
                 cur = self.conn.cursor()
@@ -84,5 +91,7 @@ class Connection:
             self.Error = ''
         
     def DisConnect(self):
+        # Closes the connection when a connection has been made
+        
         if self.Connected.get():
             self.conn.close()        

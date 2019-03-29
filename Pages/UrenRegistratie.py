@@ -53,11 +53,16 @@ class UrenRegistratie(ttk.Frame):
         self._BuildLabelsButtons()
         self._BuildPage()        
       
-    def _BuildPage(self):        
+    def _BuildPage(self):
+        # Adds every employee that was active on the selected date to the page
+        
+        # Remove the existing entries
         if self._InvoerRijen:
             for i in self._InvoerRijen:
                 self._InvoerRijen[i].Destroy()                
         
+        
+        # Retrieve the active employees and add the entries for the employees to the page
         WerknemerQuery = """select name from employees 
                             where startdate < %s and (enddate is null or enddate >= %s)"""
         RegistratieQuery = """select * from uurregistratie 
@@ -99,10 +104,10 @@ class UrenRegistratie(ttk.Frame):
         self._LabelDatum.place(relx=.05, rely=.02, relwidth=.03, relheight=.03)       
             
         self._ButtonDatum = ttk.Button(self, text=self._Datum)
-        self._ButtonDatum.config(command=self._ShowCalendar)
+        self._ButtonDatum.config(command=self._ToggleCalendar)
         self._ButtonDatum.place(relx=.08, rely=.02, relheight=.03)
         
-    def _ShowCalendar(self):
+    def _ToggleCalendar(self):
         if self._CalendarFrame == None:
             self._CalendarFrame = Calendar(firstweekday=calendar.MONDAY, callback=self._DestroyCalendar)
             self._CalendarFrame.place(in_=self, relx=.03, rely=.05) 
@@ -116,7 +121,7 @@ class UrenRegistratie(ttk.Frame):
                 self._ButtonDatum.config(text=self._Datum)
                 self._BuildPage()
         
-        self.unbind("<Button-1>")        
+        self.unbind("<Button-1>")   
         self._CalendarFrame.destroy()
         self._CalendarFrame = None
         
