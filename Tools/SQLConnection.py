@@ -6,6 +6,7 @@ Created on Wed Aug 22 18:30:02 2018
 """
 
 import psycopg2
+import _thread
 import tkinter as tk
 
 class Connection:
@@ -78,6 +79,11 @@ class Connection:
             return None
     
     def Connect(self):
+        # Start a seperate thread to prevent that the program becomes unresponsive when
+        # there isn't a SQL connection
+        _thread.start_new_thread(self.ConnectThread, (2,))
+            
+    def ConnectThread(self, timeout=None):
         # Create connection with database
         try:
             self.conn = psycopg2.connect(database=self.DB, user=self.username, 

@@ -109,6 +109,10 @@ class Main(themed_tk.ThemedTk):
         frame = self.frames[cont]
         frame.tkraise()
         
+        # If not connected, try to reconnect with page refresh
+        if not self.SQL.Connected.get():
+            self.SQL.Connect()
+        
     def _Quit(self, event=None):
         # Function that handles the closing of the app
         self.SQL.DisConnect()

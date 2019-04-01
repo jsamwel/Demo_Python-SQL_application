@@ -8,7 +8,6 @@ Created on Tue Dec  4 16:11:23 2018
 import sys
 sys.path.insert(0, sys.path[0]+'../')
 
-import tkinter as tk
 from tkinter import ttk
 
 from Tools.SortButton import SortButton
@@ -84,7 +83,6 @@ class Werknemers(ttk.Frame):
         columns = ['Naam', 'Geboren', 'Leeftijd']
         Werknemers = [['Yoeri Samwel', '1986-12-03', '32'], 
                       ['Jolan Samwel', '1992-04-06', '26'], 
-                      ['Fiona van de Haar', '1994-04-23', '24'],
                       ['Remy Samwel', '1994-08-25', '24']]
         
         self._CreateList(Werknemers, columns)
