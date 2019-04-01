@@ -6,7 +6,7 @@ Created on Wed Aug 22 18:30:02 2018
 """
 
 import psycopg2
-import _thread
+from threading import Thread
 import tkinter as tk
 
 class Connection:
@@ -16,13 +16,15 @@ class Connection:
         self.password   = password
         self.DB         = database
         
-        self.Connected = tk.IntVar()
-        self.Error = ''
+        self._Connected     = False
+        self.TKConnected    = tk.IntVar()
+        self._Connecting    = False
+        self.Error          = ''
         
     def InsertQuery(self, Command, Data):
         # Function for inserting/updating data in the SQL database
         
-        if self.Connected.get():
+        if self.Connected:
             try:
                 cur = self.conn.cursor()
                 cur.execute(Command, Data)
@@ -37,7 +39,7 @@ class Connection:
     def FetchQuery(self, Command, Data):
         # Function for retrieving data from the SQL database
         
-        if self.Connected.get():
+        if self.Connected:
             try:
                 cur = self.conn.cursor()
                 cur.execute(Command, Data)
@@ -59,7 +61,7 @@ class Connection:
         # Function for retrieving a single column from the SQL database, returns
         # a list with one dimension
         
-        if self.Connected.get():
+        if self.Connected:
             try:
                 cur = self.conn.cursor()
                 cur.execute("select %s from %s", (Table, Column))
@@ -81,23 +83,39 @@ class Connection:
     def Connect(self):
         # Start a seperate thread to prevent that the program becomes unresponsive when
         # there isn't a SQL connection
-        _thread.start_new_thread(self.ConnectThread, (2,))
+        if not self._Connecting:
+            threaded = Thread(target=self.ConnectThread)
+            # This thread dies when main thread (only non-daemon thread) exits.
+            threaded.daemon = True  
+            threaded.start()           
             
-    def ConnectThread(self, timeout=None):
+    def ConnectThread(self):
         # Create connection with database
+        self._Connecting = True
+        
         try:
             self.conn = psycopg2.connect(database=self.DB, user=self.username, 
                                      password=self.password)            
             
         except psycopg2.OperationalError as e:
-            self.Connected.set(0)
-            self.Error = e
+            self._Connected = False            
+            self.Error = e            
         else:
-            self.Connected.set(1)
-            self.Error = ''
+            self._Connected = True
+            self.Error = '' 
+            
+        self._Connecting = False
+            
+    @property    
+    def Connected(self):
+        return self.TKConnected.get()
+        
+    @Connected.setter
+    def Connected(self, value):
+        #Requires time in format 00:00
+        self.TKConnected.set(self._Connected)
         
     def DisConnect(self):
         # Closes the connection when a connection has been made
-        
-        if self.Connected.get():
+        if self.Connected:
             self.conn.close()        

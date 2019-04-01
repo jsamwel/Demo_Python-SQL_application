@@ -29,10 +29,10 @@ class SettingsPage(ttk.Frame):
         self.SQLStatusLabel = ttk.Label(self, text="Not connected")
         self.SQLStatusLabel.place(relx=.15, rely=.15)
         
-        controller.SQL.Connected.trace(mode="w", callback=self._SQLConnectionChange)
+        controller.SQL.TKConnected.trace(mode="w", callback=self._SQLConnectionChange)
         
     def _SQLConnectionChange(self, *args, **kw):
-        if self.SQL.Connected.get():       
+        if self.SQL.Connected:       
             self.SQLStatusLabel.config(text="Connected")
         else:
             self.SQLStatusLabel.config(text="Not connected")

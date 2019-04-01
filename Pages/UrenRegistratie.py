@@ -68,7 +68,7 @@ class UrenRegistratie(ttk.Frame):
         RegistratieQuery = """select * from uurregistratie 
                             where date = %s"""
         
-        if self.SQL.Connected.get():
+        if self.SQL.Connected:
             self._Werknemers = self.SQL.FetchQuery(WerknemerQuery, [self._Datum.strftime('%d-%m-%Y'), self._Datum.strftime('%d-%m-%Y')])
             self._UurRegOld = self.SQL.FetchQuery(RegistratieQuery, [self._Datum.strftime('%d-%m-%Y')])
             
@@ -126,7 +126,7 @@ class UrenRegistratie(ttk.Frame):
         self._CalendarFrame = None
         
     def _Save(self):
-        if self.SQL.Connected.get():
+        if self.SQL.Connected:
             for rij in self._InvoerRijen:
                 Data = self._InvoerRijen[rij].GetData()
                 
