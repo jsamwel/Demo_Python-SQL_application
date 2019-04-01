@@ -111,8 +111,7 @@ class Connection:
         return self.TKConnected.get()
         
     @Connected.setter
-    def Connected(self, value):
-        #Requires time in format 00:00
+    def Connected(self):
         self.TKConnected.set(self._Connected)
         
     def DisConnect(self):
