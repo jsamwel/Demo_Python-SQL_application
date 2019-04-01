@@ -16,8 +16,8 @@ class Connection:
         self.password   = password
         self.DB         = database
         
-        self._Connected     = False
         self.TKConnected    = tk.IntVar()
+        self._Connected     = False
         self._Connecting    = False
         self.Error          = ''
         
@@ -87,7 +87,9 @@ class Connection:
             threaded = Thread(target=self.ConnectThread)
             # This thread dies when main thread (only non-daemon thread) exits.
             threaded.daemon = True  
-            threaded.start()           
+            threaded.start() 
+            
+        self.Connected = self._Connected
             
     def ConnectThread(self):
         # Create connection with database
@@ -111,8 +113,8 @@ class Connection:
         return self.TKConnected.get()
         
     @Connected.setter
-    def Connected(self):
-        self.TKConnected.set(self._Connected)
+    def Connected(self, value):
+        self.TKConnected.set(value)
         
     def DisConnect(self):
         # Closes the connection when a connection has been made
