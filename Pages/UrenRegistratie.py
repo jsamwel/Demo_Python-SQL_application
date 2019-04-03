@@ -45,13 +45,18 @@ class UrenRegistratie(ttk.Frame):
     def __init__(self, parent, controller, SQL):
         ttk.Frame.__init__(self, parent)
         
-        self.SQL = SQL        
+        self.SQL = SQL     
+        
+        self._Datum = calendar.datetime.date.today()
            
         self._Werknemers = None
         self._InvoerRijen = {}  
 
         self._BuildLabelsButtons()
-        self._BuildPage()        
+        self._BuildPage()   
+        
+        # Update page when SQL connection changes
+        controller.SQL.TKConnected.trace(mode="w", callback=self._SQLConnectionChange)
       
     def _BuildPage(self):
         # Adds every employee that was active on the selected date to the page
@@ -73,22 +78,18 @@ class UrenRegistratie(ttk.Frame):
             self._UurRegOld = self.SQL.FetchQuery(RegistratieQuery, [self._Datum.strftime('%d-%m-%Y')])
             
             for F in range(len(self._Werknemers)):
-                RegExist = 0
+                RegOld = None
+                
                 x = .05
                 y = .1 + F * .05
                             
                 for U in self._UurRegOld:
-                    if U[2] == self._Werknemers[F][0]: 
-                        RegExist = 1
-                        RegOld = U
-                    
-                if RegExist:
-                    self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y, RegOld)
-                else:
-                    self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y)
+                    if U[2] == self._Werknemers[F][0]:
+                        RegOld = U                    
+                
+                self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y, RegOld)
         
-    def _BuildLabelsButtons(self): 
-        self._Datum = calendar.datetime.date.today()        
+    def _BuildLabelsButtons(self):                 
         self._CalendarFrame = None
         
         self._SaveButton = ttk.Button(self, text='Save', command=self._Save)
@@ -109,7 +110,10 @@ class UrenRegistratie(ttk.Frame):
         
     def _ToggleCalendar(self):
         if self._CalendarFrame == None:
-            self._CalendarFrame = Calendar(firstweekday=calendar.MONDAY, callback=self._DestroyCalendar)
+            self._CalendarFrame = Calendar(firstweekday=calendar.MONDAY, 
+                                           callback=self._DestroyCalendar,
+                                           month=self._Datum.month)
+            
             self._CalendarFrame.place(in_=self, relx=.03, rely=.05) 
             self.bind("<Button-1>", self._DestroyCalendar)                                      
         else: 
@@ -126,21 +130,22 @@ class UrenRegistratie(ttk.Frame):
         self._CalendarFrame = None
         
     def _Save(self):
+        UpdateQuery = """UPDATE uurregistratie 
+                        SET starttime = %s, endtime = %s 
+                        WHERE date = %s and employee = %s"""
+        InsertQuery = """INSERT INTO uurregistratie
+                        VALUES(DEFAULT, %s, %s, %s, %s)"""                           
+                                    
         if self.SQL.Connected:
             for rij in self._InvoerRijen:
                 Data = self._InvoerRijen[rij].GetData()
                 
-                if self._InvoerRijen[rij].Updated:
-                    UpdateQuery = """UPDATE uurregistratie 
-                                    SET starttime = %s, endtime = %s 
-                                    WHERE date = %s and employee = %s"""
-                                                    
-                    self.SQL.InsertQuery(UpdateQuery, [Data[1], Data[2], self._Datum.strftime('%Y-%m-%d'), Data[0]])
-                    
-                else:
-                    InsertQuery = """INSERT INTO uurregistratie
-                                    VALUES(DEFAULT, %s, %s, %s, %s)"""
-                                    
+                if self._InvoerRijen[rij].Updated:    
+                    self.SQL.InsertQuery(UpdateQuery, [Data[1], Data[2], self._Datum.strftime('%Y-%m-%d'), Data[0]])                    
+                else:                 
                     self.SQL.InsertQuery(InsertQuery, [self._Datum.strftime('%Y-%m-%d'), Data[0], Data[1], Data[2]])   
                     
             self._BuildPage()
+            
+    def _SQLConnectionChange(self, *args, **kw):               
+        self._BuildPage()
