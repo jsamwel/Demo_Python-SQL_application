@@ -10,7 +10,7 @@ sys.path.insert(0, sys.path[0]+'../')
 
 from tkinter import ttk
 
-from Tools.SortButton import SortButton
+import Tools
 
 class Werknemerlijst(ttk.Frame):  
     _rijen = []
@@ -25,7 +25,7 @@ class Werknemerlijst(ttk.Frame):
         for i in range(len(columns)):
             x = 0 + i * .15
             
-            self._SortKnoppen.append(SortButton(self, self.Sort, self._Columns[i]))
+            self._SortKnoppen.append(Tools.SortButton(self, self.Sort, self._Columns[i]))
             self._SortKnoppen[i].place(relx=x, rely=0)
         
         self._CreateRows()

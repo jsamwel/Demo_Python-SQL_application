@@ -5,8 +5,7 @@ import calendar
 
 from tkinter import ttk
 
-from Tools.CalendarDialog import Calendar
-from Tools.TimeEntry import TimeEntry
+import Tools
 
 class InvoerRij:
     def __init__(self, Frame, Werknemer, x, y, RegOld=None):        
@@ -17,10 +16,10 @@ class InvoerRij:
         self.Werknemer = ttk.Label(self.Frame, text=self._Werknemer)
         self.Werknemer.place(relx=x, rely=y)
         
-        self.StartTijd = TimeEntry(self.Frame)
+        self.StartTijd = Tools.TimeEntry(self.Frame)
         self.StartTijd.place(relx=x+.1, rely=y)
         
-        self.StopTijd = TimeEntry(self.Frame)
+        self.StopTijd = Tools.TimeEntry(self.Frame)
         self.StopTijd.place(relx=x+.18, rely=y)
         
         if RegOld:            
@@ -113,7 +112,7 @@ class UrenRegistratie(ttk.Frame):
         
     def _ToggleCalendar(self):
         if self._CalendarFrame == None:
-            self._CalendarFrame = Calendar(firstweekday=calendar.MONDAY, 
+            self._CalendarFrame = Tools.Calendar(firstweekday=calendar.MONDAY, 
                                            callback=self._DestroyCalendar,
                                            month=self._Datum.month,
                                            year=self._Datum.year)
