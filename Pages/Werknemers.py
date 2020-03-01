@@ -63,7 +63,7 @@ class Werknemerlijst(ttk.Frame):
             for n in range(len(self._Columns)):
                 x = n * .15
                 
-                TempColumn.append(ttk.Label(self, text=self._Werknemers[i][n]))
+                TempColumn.append(ttk.Label(self, text=self._Werknemers[i][n+1]))
                 
                 TempColumn[n].config(justify="left")
                 TempColumn[n].place(relx=x, rely=y)
@@ -78,15 +78,27 @@ class Werknemers(ttk.Frame):
     def __init__(self, parent, controller, SQL):
         ttk.Frame.__init__(self, parent)
         
+        self.SQL = SQL
+        
         self._Lijst = None
+        self._Werknemers = None
         
-        columns = ['Naam', 'Geboren', 'Leeftijd']
-        Werknemers = [['Yoeri Samwel', '1986-12-03', '32'], 
-                      ['Jolan Samwel', '1992-04-06', '26'], 
-                      ['Remy Samwel', '1994-08-25', '24']]
+        # Update page when SQL connection changes
+        controller.SQL.TKConnected.trace(mode="w", callback=self._SQLConnectionChange)
         
-        self._CreateList(Werknemers, columns)
+        self._CreateList()
         
-    def _CreateList(self, werknemers, columns):        
-        self._Lijst = Werknemerlijst(self, werknemers, columns)
-        self._Lijst.place(relx=.1, rely=.15, relwidth=.9, relheight=.85)
+    def _CreateList(self): 
+        # Retrieve the active employees and add the entries for the employees to the page
+        WerknemerQuery = """select * from employees where enddate is null"""
+        
+        columns = ['Naam', 'Geboren']
+        
+        if self.SQL.Connected:
+            self._Werknemers = self.SQL.FetchQuery(WerknemerQuery)
+        
+            self._Lijst = Werknemerlijst(self, self._Werknemers, columns)
+            self._Lijst.place(relx=.1, rely=.15, relwidth=.9, relheight=.85)
+        
+    def _SQLConnectionChange(self, *args, **kw):               
+        self._CreateList()

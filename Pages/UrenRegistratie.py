@@ -92,15 +92,18 @@ class UrenRegistratie(ttk.Frame):
     def _BuildLabelsButtons(self):                 
         self._CalendarFrame = None
         
-        self._SaveButton = ttk.Button(self, text='Save', command=self._Save)
-        self._SaveButton.place(relx=.4, rely=.02)
+        self._ButtonSave = ttk.Button(self, text='Save', command=self._Save)
+        self._ButtonSave.place(relx=.4, rely=.02)
+        
+        self._ButtonMoveDateToCurrent = ttk.Button(self, text='Today', command=self._MoveDateToCurrent)
+        self._ButtonMoveDateToCurrent.place(relx=.15, rely=.02, relheight=.03)
         
         self._LabelStartTijd = ttk.Label(self, text='Start tijd')
         self._LabelStartTijd.place(relx=.15, rely=.06)
         
         self._LabelStopTijd = ttk.Label(self, text='Stop tijd')
         self._LabelStopTijd.place(relx=.23, rely=.06)
-        
+         
         self._LabelDatum = ttk.Label(self, text='Date:')
         self._LabelDatum.place(relx=.05, rely=.02, relwidth=.03, relheight=.03)       
             
@@ -128,6 +131,13 @@ class UrenRegistratie(ttk.Frame):
         self.unbind("<Button-1>")   
         self._CalendarFrame.destroy()
         self._CalendarFrame = None
+        
+    def _MoveDateToCurrent(self):
+        self._Datum = calendar.datetime.date.today()
+        
+        self._ButtonDatum.config(text=self._Datum)
+        
+        self._BuildPage()
         
     def _Save(self):
         UpdateQuery = """UPDATE uurregistratie 

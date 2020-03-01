@@ -36,7 +36,7 @@ class Connection:
                 self.Connected.set(0)
                 self.Error = e
  
-    def FetchQuery(self, Command, Data):
+    def FetchQuery(self, Command, Data=[]):
         # Function for retrieving data from the SQL database
         
         if self.Connected:
