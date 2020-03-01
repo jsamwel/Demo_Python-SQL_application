@@ -60,12 +60,7 @@ class UrenRegistratie(ttk.Frame):
       
     def _BuildPage(self):
         # Adds every employee that was active on the selected date to the page
-        
-        # Remove the existing entries
-        if self._InvoerRijen:
-            for i in self._InvoerRijen:
-                self._InvoerRijen[i].Destroy()                
-        
+               
         
         # Retrieve the active employees and add the entries for the employees to the page
         WerknemerQuery = """select name from employees 
@@ -76,6 +71,11 @@ class UrenRegistratie(ttk.Frame):
         if self.SQL.Connected:
             self._Werknemers = self.SQL.FetchQuery(WerknemerQuery, [self._Datum.strftime('%d-%m-%Y'), self._Datum.strftime('%d-%m-%Y')])
             self._UurRegOld = self.SQL.FetchQuery(RegistratieQuery, [self._Datum.strftime('%d-%m-%Y')])
+            
+            # Remove the existing entries
+            if self._InvoerRijen:
+               for i in self._InvoerRijen:
+                   self._InvoerRijen[i].Destroy()  
             
             for F in range(len(self._Werknemers)):
                 RegOld = None
@@ -115,7 +115,8 @@ class UrenRegistratie(ttk.Frame):
         if self._CalendarFrame == None:
             self._CalendarFrame = Calendar(firstweekday=calendar.MONDAY, 
                                            callback=self._DestroyCalendar,
-                                           month=self._Datum.month)
+                                           month=self._Datum.month,
+                                           year=self._Datum.year)
             
             self._CalendarFrame.place(in_=self, relx=.03, rely=.05) 
             self.bind("<Button-1>", self._DestroyCalendar)                                      
