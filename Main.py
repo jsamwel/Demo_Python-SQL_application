@@ -9,13 +9,9 @@ import tkinter as tk
 from tkinter import ttk
 from ttkthemes import themed_tk
 
-from Pages.UrenRegistratie import UrenRegistratie
-from Pages.GraphPage import GraphPage
-from Pages.StartPage import StartPage
-from Pages.Werknemers import Werknemers
-from Pages.SettingsPage import SettingsPage
+from Pages import UrenRegistratie, GraphPage, StartPage, Werknemers, SettingsPage
 
-from Tools.SQLConnection import Connection
+import Tools
 
 class Main(themed_tk.ThemedTk):
     def __init__(self): 
@@ -53,7 +49,7 @@ class Main(themed_tk.ThemedTk):
         password    = 'WWPostgres'
         database    = 'DataDevelopment'
         
-        self.SQL = Connection(hostname, user, password, database)
+        self.SQL = Tools.Connection(hostname, user, password, database)
         self.SQL.Connect()         
         
     def _CreatePages(self):
@@ -108,6 +104,10 @@ class Main(themed_tk.ThemedTk):
         # Function for navigating between pages
         frame = self.frames[cont]
         frame.tkraise()
+        
+        # If not connected, try to reconnect with page refresh
+        if not self.SQL.Connected:
+            self.SQL.Connect()
         
     def _Quit(self, event=None):
         # Function that handles the closing of the app

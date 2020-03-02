@@ -5,8 +5,7 @@ import calendar
 
 from tkinter import ttk
 
-from Tools.CalendarDialog import Calendar
-from Tools.TimeEntry import TimeEntry
+import Tools
 
 class InvoerRij:
     def __init__(self, Frame, Werknemer, x, y, RegOld=None):        
@@ -17,10 +16,10 @@ class InvoerRij:
         self.Werknemer = ttk.Label(self.Frame, text=self._Werknemer)
         self.Werknemer.place(relx=x, rely=y)
         
-        self.StartTijd = TimeEntry(self.Frame)
+        self.StartTijd = Tools.TimeEntry(self.Frame)
         self.StartTijd.place(relx=x+.1, rely=y)
         
-        self.StopTijd = TimeEntry(self.Frame)
+        self.StopTijd = Tools.TimeEntry(self.Frame)
         self.StopTijd.place(relx=x+.18, rely=y)
         
         if RegOld:            
@@ -45,63 +44,79 @@ class UrenRegistratie(ttk.Frame):
     def __init__(self, parent, controller, SQL):
         ttk.Frame.__init__(self, parent)
         
-        self.SQL = SQL
+        self.SQL = SQL     
         
-        self._Datum = calendar.datetime.date.today()        
-        self._CalendarFrame = None 
-        
-        self._SaveButton = ttk.Button(self, text='Save', command=self._Save)
-        self._SaveButton.place(relx=.4, rely=.02)
-        
+        self._Datum = calendar.datetime.date.today()
+           
         self._Werknemers = None
         self._InvoerRijen = {}  
 
-        self._BuildPage()        
-      
-    def _BuildPage(self):        
-        if self._InvoerRijen:
-            for i in self._InvoerRijen:
-                self._InvoerRijen[i].Destroy()                
+        self._BuildLabelsButtons()
+        self._BuildPage()   
         
+        # Update page when SQL connection changes
+        controller.SQL.TKConnected.trace(mode="w", callback=self._SQLConnectionChange)
+      
+    def _BuildPage(self):
+        # Adds every employee that was active on the selected date to the page
+               
+        
+        # Retrieve the active employees and add the entries for the employees to the page
         WerknemerQuery = """select name from employees 
                             where startdate < %s and (enddate is null or enddate >= %s)"""
         RegistratieQuery = """select * from uurregistratie 
                             where date = %s"""
         
-        self._Werknemers = self.SQL.FetchQuery(WerknemerQuery, [self._Datum.strftime('%d-%m-%Y'), self._Datum.strftime('%d-%m-%Y')])
-        self._UurRegOld = self.SQL.FetchQuery(RegistratieQuery, [self._Datum.strftime('%d-%m-%Y')])
+        if self.SQL.Connected:
+            self._Werknemers = self.SQL.FetchQuery(WerknemerQuery, [self._Datum.strftime('%d-%m-%Y'), self._Datum.strftime('%d-%m-%Y')])
+            self._UurRegOld = self.SQL.FetchQuery(RegistratieQuery, [self._Datum.strftime('%d-%m-%Y')])
+            
+            # Remove the existing entries
+            if self._InvoerRijen:
+               for i in self._InvoerRijen:
+                   self._InvoerRijen[i].Destroy()  
+            
+            for F in range(len(self._Werknemers)):
+                RegOld = None
                 
-        LabelStartTijd = ttk.Label(self, text='Start tijd')
-        LabelStartTijd.place(relx=.15, rely=.06)
+                x = .05
+                y = .1 + F * .05
+                            
+                for U in self._UurRegOld:
+                    if U[2] == self._Werknemers[F][0]:
+                        RegOld = U                    
+                
+                self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y, RegOld)
         
-        LabelStopTijd = ttk.Label(self, text='Stop tijd')
-        LabelStopTijd.place(relx=.23, rely=.06)
+    def _BuildLabelsButtons(self):                 
+        self._CalendarFrame = None
         
-        LabelDatum = ttk.Label(self, text='Date:')
-        LabelDatum.place(relx=.05, rely=.02, relwidth=.03, relheight=.03)       
+        self._ButtonSave = ttk.Button(self, text='Save', command=self._Save)
+        self._ButtonSave.place(relx=.4, rely=.02)
+        
+        self._ButtonMoveDateToCurrent = ttk.Button(self, text='Today', command=self._MoveDateToCurrent)
+        self._ButtonMoveDateToCurrent.place(relx=.15, rely=.02, relheight=.03)
+        
+        self._LabelStartTijd = ttk.Label(self, text='Start tijd')
+        self._LabelStartTijd.place(relx=.15, rely=.06)
+        
+        self._LabelStopTijd = ttk.Label(self, text='Stop tijd')
+        self._LabelStopTijd.place(relx=.23, rely=.06)
+         
+        self._LabelDatum = ttk.Label(self, text='Date:')
+        self._LabelDatum.place(relx=.05, rely=.02, relwidth=.03, relheight=.03)       
             
         self._ButtonDatum = ttk.Button(self, text=self._Datum)
-        self._ButtonDatum.config(command=self._ShowCalendar)
+        self._ButtonDatum.config(command=self._ToggleCalendar)
         self._ButtonDatum.place(relx=.08, rely=.02, relheight=.03)
-           
-        for F in range(len(self._Werknemers)):
-            RegExist = 0
-            x = .05
-            y = .1 + F * .05
-                        
-            for U in self._UurRegOld:
-                if U[2] == self._Werknemers[F][0]: 
-                    RegExist = 1
-                    RegOld = U
-                
-            if RegExist:
-                self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y, RegOld)
-            else:
-                self._InvoerRijen[self._Werknemers[F]] = InvoerRij(self, self._Werknemers[F], x, y)
         
-    def _ShowCalendar(self):
+    def _ToggleCalendar(self):
         if self._CalendarFrame == None:
-            self._CalendarFrame = Calendar(firstweekday=calendar.MONDAY, callback=self._DestroyCalendar)
+            self._CalendarFrame = Tools.Calendar(firstweekday=calendar.MONDAY, 
+                                           callback=self._DestroyCalendar,
+                                           month=self._Datum.month,
+                                           year=self._Datum.year)
+            
             self._CalendarFrame.place(in_=self, relx=.03, rely=.05) 
             self.bind("<Button-1>", self._DestroyCalendar)                                      
         else: 
@@ -113,25 +128,34 @@ class UrenRegistratie(ttk.Frame):
                 self._ButtonDatum.config(text=self._Datum)
                 self._BuildPage()
         
-        self.unbind("<Button-1>")        
+        self.unbind("<Button-1>")   
         self._CalendarFrame.destroy()
         self._CalendarFrame = None
         
+    def _MoveDateToCurrent(self):
+        self._Datum = calendar.datetime.date.today()
+        
+        self._ButtonDatum.config(text=self._Datum)
+        
+        self._BuildPage()
+        
     def _Save(self):
-        for rij in self._InvoerRijen:
-            Data = self._InvoerRijen[rij].GetData()
+        UpdateQuery = """UPDATE uurregistratie 
+                        SET starttime = %s, endtime = %s 
+                        WHERE date = %s and employee = %s"""
+        InsertQuery = """INSERT INTO uurregistratie
+                        VALUES(DEFAULT, %s, %s, %s, %s)"""                           
+                                    
+        if self.SQL.Connected:
+            for rij in self._InvoerRijen:
+                Data = self._InvoerRijen[rij].GetData()
+                
+                if self._InvoerRijen[rij].Updated:    
+                    self.SQL.InsertQuery(UpdateQuery, [Data[1], Data[2], self._Datum.strftime('%Y-%m-%d'), Data[0]])                    
+                else:                 
+                    self.SQL.InsertQuery(InsertQuery, [self._Datum.strftime('%Y-%m-%d'), Data[0], Data[1], Data[2]])   
+                    
+            self._BuildPage()
             
-            if self._InvoerRijen[rij].Updated:
-                UpdateQuery = """UPDATE uurregistratie 
-                                SET starttime = %s, endtime = %s 
-                                WHERE date = %s and employee = %s"""
-                                                
-                self.SQL.InsertQuery(UpdateQuery, [Data[1], Data[2], self._Datum.strftime('%Y-%m-%d'), Data[0]])
-                
-            else:
-                InsertQuery = """INSERT INTO uurregistratie
-                                VALUES(DEFAULT, %s, %s, %s, %s)"""
-                                
-                self.SQL.InsertQuery(InsertQuery, [self._Datum.strftime('%Y-%m-%d'), Data[0], Data[1], Data[2]])   
-                
+    def _SQLConnectionChange(self, *args, **kw):               
         self._BuildPage()

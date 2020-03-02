@@ -15,21 +15,24 @@ class SettingsPage(ttk.Frame):
     Title = "Settings"
     
     def __init__(self, parent, controller, SQL):
+        self.parent = parent
+        self.SQL = SQL
+        
         ttk.Frame.__init__(self, parent)
         
-        label = ttk.Label(self, text="SQL connection")
-        label.place(relx=.1, rely=.1)
+        self.label = ttk.Label(self, text="SQL connection")
+        self.label.place(relx=.1, rely=.1)
         
-        SQLStatusTextLabel = ttk.Label(self, text="Status:")
-        SQLStatusTextLabel.place(relx=.11, rely=.15)
+        self.SQLStatusTextLabel = ttk.Label(self, text="Status:")
+        self.SQLStatusTextLabel.place(relx=.11, rely=.15)
         
-        SQLStatusLabel = ttk.Label(self, text="Not connected")
-        SQLStatusLabel.place(relx=.15, rely=.15)
+        self.SQLStatusLabel = ttk.Label(self, text="Not connected")
+        self.SQLStatusLabel.place(relx=.15, rely=.15)
         
-        controller.SQL.Connected.trace(mode="w", callback=self._SQLConnectionChange)
+        controller.SQL.TKConnected.trace(mode="w", callback=self._SQLConnectionChange)
         
-    def _SQLConnectionChange(self):
-        if self.parent.SQL.connected.get():       
+    def _SQLConnectionChange(self, *args, **kw):
+        if self.SQL.Connected:       
             self.SQLStatusLabel.config(text="Connected")
         else:
             self.SQLStatusLabel.config(text="Not connected")

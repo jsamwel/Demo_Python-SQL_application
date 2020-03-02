@@ -8,10 +8,9 @@ Created on Tue Dec  4 16:11:23 2018
 import sys
 sys.path.insert(0, sys.path[0]+'../')
 
-import tkinter as tk
 from tkinter import ttk
 
-from Tools.SortButton import SortButton
+import Tools
 
 class Werknemerlijst(ttk.Frame):  
     _rijen = []
@@ -26,7 +25,7 @@ class Werknemerlijst(ttk.Frame):
         for i in range(len(columns)):
             x = 0 + i * .15
             
-            self._SortKnoppen.append(SortButton(self, self.Sort, self._Columns[i]))
+            self._SortKnoppen.append(Tools.SortButton(self, self.Sort, self._Columns[i]))
             self._SortKnoppen[i].place(relx=x, rely=0)
         
         self._CreateRows()
@@ -64,7 +63,7 @@ class Werknemerlijst(ttk.Frame):
             for n in range(len(self._Columns)):
                 x = n * .15
                 
-                TempColumn.append(ttk.Label(self, text=self._Werknemers[i][n]))
+                TempColumn.append(ttk.Label(self, text=self._Werknemers[i][n+1]))
                 
                 TempColumn[n].config(justify="left")
                 TempColumn[n].place(relx=x, rely=y)
@@ -79,16 +78,27 @@ class Werknemers(ttk.Frame):
     def __init__(self, parent, controller, SQL):
         ttk.Frame.__init__(self, parent)
         
+        self.SQL = SQL
+        
         self._Lijst = None
+        self._Werknemers = None
         
-        columns = ['Naam', 'Geboren', 'Leeftijd']
-        Werknemers = [['Yoeri Samwel', '1986-12-03', '32'], 
-                      ['Jolan Samwel', '1992-04-06', '26'], 
-                      ['Fiona van de Haar', '1994-04-23', '24'],
-                      ['Remy Samwel', '1994-08-25', '24']]
+        # Update page when SQL connection changes
+        controller.SQL.TKConnected.trace(mode="w", callback=self._SQLConnectionChange)
         
-        self._CreateList(Werknemers, columns)
+        self._CreateList()
         
-    def _CreateList(self, werknemers, columns):        
-        self._Lijst = Werknemerlijst(self, werknemers, columns)
-        self._Lijst.place(relx=.1, rely=.15, relwidth=.9, relheight=.85)
+    def _CreateList(self): 
+        # Retrieve the active employees and add the entries for the employees to the page
+        WerknemerQuery = """select * from employees where enddate is null"""
+        
+        columns = ['Naam', 'Geboren']
+        
+        if self.SQL.Connected:
+            self._Werknemers = self.SQL.FetchQuery(WerknemerQuery)
+        
+            self._Lijst = Werknemerlijst(self, self._Werknemers, columns)
+            self._Lijst.place(relx=.1, rely=.15, relwidth=.9, relheight=.85)
+        
+    def _SQLConnectionChange(self, *args, **kw):               
+        self._CreateList()
